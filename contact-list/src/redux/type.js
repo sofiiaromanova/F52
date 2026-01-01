@@ -1,0 +1,7 @@
+export const ADD_CONTACT = 'ADD_CONTACT'
+export const DELETE_CONTACT = 'DELETE_CONTACT'
+export const EDIT_CONTACT = 'EDIT_CONTACT'
+
+export const ADD_STATUS = 'ADD_STATUS'
+export const EDIT_STATUS = 'EDIT_STATUS'
+export const DELETE_STATUS = 'DELETE_STATUS'

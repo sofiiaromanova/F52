@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+.addPage {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f2f5; /* Світло-сірий сучасний фон */
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
+
+  /* Картка форми */
+  form {
+    background: #ffffff;
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    border-radius: 20px; /* Сильні заокруглення */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); /* М'яка, дорога тінь */
+    animation: fadeIn 0.5s ease-in-out;
+
+    h1 {
+      text-align: center;
+      color: #1a1a1a;
+      font-weight: 600;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    hr {
+      border: 0;
+      height: 2px;
+      background: linear-gradient(to right, #f0f2f5, #e1e4e8, #f0f2f5);
+      margin-bottom: 30px;
+    }
+
+    /* Блоки з полями */
+    div[class*="m-4"] {
+      margin: 0 0 24px 0 !important;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    /* Поля вводу */
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #f0f2f5;
+      background-color: #f9fafb;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #333;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+
+      &::placeholder {
+        color: #bbb;
+      }
+
+      &:focus {
+        background-color: #fff;
+        border-color: #6c5ce7; /* Акцентний колір (фіолетовий) */
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+      }
+    }
+
+    /* Помилки */
+    div[style*="color: red"], .text-danger {
+      color: #ff4757;
+      font-size: 12px;
+      margin-top: 6px;
+      margin-left: 4px;
+      font-weight: 500;
+    }
+
+    /* Кнопка */
+    button[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); /* Градієнт */
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.5px;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}
+
+/* Анімація появи */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
