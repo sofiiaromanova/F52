@@ -41,3 +41,11 @@ export const deleteStatus = (statusName) => {
     payload: statusName
   }
 }
+
+
+export const updateContact = (contact) => {
+  return {
+    type: "UPDATE_CONTACT",
+    payload: contact,
+  };
+};

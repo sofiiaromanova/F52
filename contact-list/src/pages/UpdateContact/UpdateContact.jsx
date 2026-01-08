@@ -1,95 +1,130 @@
-// import './NewContact.scss';
-import {Formik, Form, Field, ErrorMessage} from 'formik'
-import { useNavigate, useParams  } from "react-router-dom";
-import { contactValidationSchema } from '../../validation/validation';
-import { useDispatch, useSelector } from 'react-redux';
-import { editContact } from '../../redux/actions';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import { updateContact } from "../../redux/actions"; 
+// Если у тебя есть файл стилей NewContact.scss в этой папке, он подключится. 
+// Если нет - просто удали строку ниже, но bootstrap классы и так сделают красиво.
+import "../NewContact/NewContact.scss"; 
 
-export default function UpdateContact(){ 
-  const {id} = useParams()
-  const {firstName, lastName, phone, email, avatar, gender, status,favorite} = 
-  useSelector(state => state.contacts.find(contact => contact.id === id ))
-  const contactStatuses = useSelector(state => state.contactStatuses)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+const UpdateContact = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  const contacts = useSelector((state) => state.contacts);
+  
+  // Ищем контакт по ID
+  const currentContact = contacts.find((contact) => contact.id == id);
 
-  const initialValues = {
-    id: id,
-    firstName: firstName,
-    lastName: lastName,
-    phone: phone,
-    email: email,
-    avatar: avatar,
-    gender: gender,
-    status: status,
-    favorite: favorite,
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [status, setStatus] = useState("Work");
+
+  // Заполняем форму данными при загрузке
+  useEffect(() => {
+    if (currentContact) {
+      setName(currentContact.firstName + " " + currentContact.lastName);
+      setEmail(currentContact.email);
+      setPhone(currentContact.phone);
+      setStatus(currentContact.status || "others");
+    }
+  }, [currentContact]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const nameParts = name.split(" ");
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(" ") || "";
+
+    const updatedData = {
+      id: currentContact.id,
+      firstName,
+      lastName,
+      email,
+      phone,
+      status,
+      avatar: currentContact.avatar
+    };
+
+    dispatch(updateContact(updatedData));
+    navigate("/");
+  };
+
+  if (!currentContact) {
+    return <h2 className="text-center mt-5">Contact not found! 😕</h2>;
   }
 
-  const handleSubmit = (value) =>{
-    dispatch(editContact(id, value))
-    navigate('/')
-  }
+  return (
+    <div className="shadow bg-white container rounded mt-4 p-4 addPage">
+      <h1 className="text-start">Edit Contact </h1>
+      <hr />
+      
+      <form onSubmit={handleSubmit}>
+        <div className="m-4">
+          <label className="form-label">Full Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
 
-  return(
-    <main className="shadow bg-white container rounded mt-4 addPage">
-          <Formik initialValues={initialValues} validationSchema={contactValidationSchema} onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
-              <Form>
-                <h1 className="text-center">Update contact</h1>
-                <hr />
-                <div className='m-4'>
-                  <label htmlFor="firstName">First name</label>
-                  <Field className='form-control fs-5' type='text' name='firstName' id='firstName'/>
-                  <ErrorMessage name='firstName' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label htmlFor="lastName">Last name</label>
-                  <Field className='form-control fs-5' type='text' name='lastName' id='lastName'/>
-                  <ErrorMessage name='lastName' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label htmlFor="phone">Phone</label>
-                  <Field className='form-control fs-5' type='text' name='phone' id='phone'/>
-                  <ErrorMessage name='phone' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label htmlFor="email">Email</label>
-                  <Field className='form-control fs-5' type='text' name='email' id='email'/>
-                  <ErrorMessage name='email' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label htmlFor="avatar">Avatar</label>
-                  <Field className='form-control fs-5' type='number' min={0} max={99} name='avatar' id='avatar'/>
-                  <ErrorMessage name='avatar' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label htmlFor="gender">Gender</label>
-                  <Field className='form-control fs-5' as='select' name='gender' id='gender'>
-                    <option value="">Choose gender</option>
-                    <option value="men">Men</option>
-                    <option value="women">Women</option>
-                  </Field>
-                  <ErrorMessage name='gender' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label htmlFor="status">Status</label>
-                  <Field className='form-control fs-5' as='select' name='status' id='status'>
-                    <option value="">Choose status</option>
-                    {Object.keys(contactStatuses).map((status, index) => (
-                      <option style={{backgroundColor: contactStatuses[status].bg}} key={index} value={status}>{status}</option>
-                    ))}
-                  </Field>
-                  <ErrorMessage name='status' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label className='form-check-label fs-5' htmlFor="favorite">Favorite</label>
-                  <Field className='form-check-input m-1 fs-4' type='checkbox' name='favorite' id='favorite'/>
-                </div>
-                <button type='submit' className='btn btn-primary btn-lg form-control' disabled={isSubmitting}>Save</button>
-              </Form>
-            )}
-          </Formik>
-    </main>
-  )
-}
+        <div className="m-4">
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="m-4">
+          <label className="form-label">Phone</label>
+          <input
+            type="text"
+            className="form-control"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="m-4">
+          <label className="form-label">Status</label>
+          <select 
+            className="form-select" 
+            value={status} 
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="Work">Work</option>
+            <option value="Family">Family</option>
+            <option value="Private">Private</option>
+            <option value="Friends">Friends</option>
+            <option value="others">Others</option>
+          </select>
+        </div>
+
+        <div className="d-grid gap-2 m-4">
+          <button type="submit" className="btn btn-primary btn-lg">
+            Save Changes 
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-secondary"
+            onClick={() => navigate("/")}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default UpdateContact;
