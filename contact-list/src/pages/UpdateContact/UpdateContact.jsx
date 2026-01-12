@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { updateContact } from "../../redux/actions"; 
-// Если у тебя есть файл стилей NewContact.scss в этой папке, он подключится. 
-// Если нет - просто удали строку ниже, но bootstrap классы и так сделают красиво.
+
 import "../NewContact/NewContact.scss"; 
 
 const UpdateContact = () => {

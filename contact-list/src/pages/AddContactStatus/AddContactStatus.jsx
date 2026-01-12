@@ -1,45 +1,66 @@
-import {Formik, Form, Field, ErrorMessage} from 'formik'
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { statusesValidationSchema } from '../../validation/validation';
+import { addStatus } from "../../redux/actions";
 
-import { useDispatch } from 'react-redux';
-import { addStatus } from '../../redux/actions';
+const AddContactStatus = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-export default function AddContactStatus(){
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  // Стейт для даних форми
+  const [name, setName] = useState("");
+  const [bg, setBg] = useState("#000000");
 
-  const initialValues = {
-    statusName: '',
-    bg: '',
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(addStatus(name, bg));
+    navigate("/contact-statuses");
+  };
 
-  const handleSubmit = (value) =>{
-    dispatch(addStatus(value.statusName, value.bg))
-    navigate('/contact-statues')
-  }
+  return (
 
-  return(
     <main className="shadow bg-white container rounded mt-4 addPage">
-          <Formik initialValues={initialValues} validationSchema={statusesValidationSchema} onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
-              <Form>
-                <h1 className="text-center">Add contact status</h1>
-                <hr />
-                <div className='m-4'>
-                  <label htmlFor="statusName">Status name</label>
-                  <Field className='form-control fs-5' type='text' name='statusName' id='statusName'/>
-                  <ErrorMessage name='statusName' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label className='form-input m-1 fs-4'  htmlFor="bg">Color</label>
-                  <Field className='form-input m-1 fs-4' type='color' name='bg' id='bg'/>
-                  <ErrorMessage name='bg' component='p' className='text-danger position-absolute'/>
-                </div>
-                <button type='submit' className='btn btn-primary btn-lg form-control' disabled={isSubmitting}>Save</button>
-              </Form>
-            )}
-          </Formik>
+      <form onSubmit={handleSubmit}>
+        
+        <h1 className="text-center">Add contact status</h1>
+        <hr />
+
+
+        <div className="m-4">
+          <label htmlFor="statusName">Status name</label>
+          <input
+            id="statusName"
+            type="text"
+            className="form-control fs-5" 
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+
+
+        <div className="m-4">
+          <label htmlFor="bg" className="form-input m-1 fs-4">Color</label>
+          <input
+            id="bg"
+            type="color"
+            className="form-input m-1 fs-4"
+            value={bg}
+            onChange={(e) => setBg(e.target.value)}
+          />
+        </div>
+
+
+        <button 
+          type="submit" 
+          className="btn btn-primary btn-lg form-control"
+        >
+          Save
+        </button>
+        
+      </form>
     </main>
-  )
-}
+  );
+};
+
+export default AddContactStatus;

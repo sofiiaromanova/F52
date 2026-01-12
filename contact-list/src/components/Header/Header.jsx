@@ -12,7 +12,7 @@ export default function Header({searchBySymbols}) {
         <div>
           <Link className='navbar-brand fs-4' to={'/'}>Contact List</Link>
           <Link className='navbar-brand fs-4' to={'/new-contact'}>Add Contact</Link>
-          <Link className='navbar-brand fs-4' to={'/contact-statues'}>Statuses</Link>
+          <Link className='navbar-brand fs-4' to={'/contact-statuses'}>Statuses</Link>
         </div>
         
         <Form className="d-flex">

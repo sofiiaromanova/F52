@@ -22,7 +22,7 @@ export default function EditContactStatus(){
 
   const handleSubmit = (value) =>{
     dispatch(editStatus(statusName, value.statusName, value.bg))
-    navigate('/contact-statues')
+    navigate('/contact-statuses')
   }
 
   return(

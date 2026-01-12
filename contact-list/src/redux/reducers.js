@@ -1,4 +1,5 @@
-import { ADD_CONTACT, EDIT_CONTACT, DELETE_CONTACT, ADD_STATUS, EDIT_STATUS } from "./type";
+import { ADD_CONTACT, EDIT_CONTACT, DELETE_CONTACT, ADD_STATUS, EDIT_STATUS, 
+  DELETE_STATUS } from "./type";
 
 const intialState = {
     contacts:[
@@ -44,7 +45,7 @@ const intialState = {
         id: "e45f531f-1bb1-456d-a5f4-e9b390fd3d0f",
         lastName: "Moon",
         phone: "0978732164",
-        status: "Wrivate",
+        status: "Private",
       },
       {
         avatar: "29",
@@ -129,72 +130,94 @@ const reducer = (state = intialState, action ) => {
         ...state,
         contacts: [...state.contacts, action.payload]
       }
-    case DELETE_CONTACT:
-      return{
-        ...state,
-        contacts: state.contacts.filter(contact => contact.id !== action.payload)
-      }
-
-
-
-
-    case "UPDATE_CONTACT":
+case ADD_CONTACT:
       return {
         ...state,
-        contacts: state.contacts.map((contact) =>
-          contact.id === action.payload.id ? action.payload : contact
-        ),
+        contacts: [...state.contacts, action.payload],
       };
 
-
-
-      
-
+    case DELETE_CONTACT:
+      return {
+        ...state,
+        contacts: state.contacts.filter((contact) => contact.id !== action.payload),
+      };
 
     case EDIT_CONTACT:
-      return{
+      return {
         ...state,
-        contacts: state.contacts.map(contact => {
-          if(contact.id === action.payload.id){
-            return {...contact, ...action.payload.updatedContact}
+        contacts: state.contacts.map((contact) => {
+          if (contact.id === action.payload.id) {
+            return { ...contact, ...action.payload.updatedContact };
           }
-        return contact
-      })
-      }
+          return contact;
+        }),
+      };
+
+    case "UPDATE_CONTACT": // 
+        return {
+          ...state,
+          contacts: state.contacts.map((contact) => 
+             contact.id === action.payload.id ? action.payload : contact
+          ),
+        };
+
+
+    // --- СТАТУСИ  ---
+    
+    // 1. ДОДАВАННЯ СТАТУСУ
     case ADD_STATUS:
-      if(state.contactStatuses[action.payload.statusName]){
-        console.warn(`Status ${action.payload.statusName} already exists.`)
-        return state
+
+      if (state.contactStatuses[action.payload.statusName]) {
+        alert("Status already exists!"); 
+        return state;
       }
       return {
         ...state,
         contactStatuses: {
           ...state.contactStatuses,
-          [action.payload.statusName]: {count: 0, bg: action.payload.bg}
-        }
-      }
-    case EDIT_STATUS:
-      if(!state.contactStatuses[action.payload.oldStatus]){
-        console.warn(`Status ${action.payload.oldStatus} does not exist.`)
-        return state
-      }
-      const updatedContactStatus = {...state.contactStatuses}
-      delete updatedContactStatus[action.payload.oldStatus]
-      updatedContactStatus[action.payload.newStatus] = {
-        count: state.contactStatuses[action.payload.oldStatus].count,
-        bg: action.payload.newBg
-      }
-      const updatedContacts = state.contacts.map(contact =>
-        contact.status === action.payload.oldStatus ? {...contact, status: action.payload.newStatus} : contact
-      )
-      return{
-        ...state,
-        contactStatuses: updatedContactStatus,
-        contacts: updatedContacts
-      }
-    default:
-      return state
-  }
-}
+          [action.payload.statusName]: { count: 0, bg: action.payload.bg },
+        },
+      };
 
-export default reducer
+    // 2. РЕДАГУВАННЯ СТАТУСУ 
+    case EDIT_STATUS:
+
+      
+      const { oldStatus, newStatus, newBg } = action.payload;
+
+      // Копіюємо всі статуси
+      const statusesCopy = { ...state.contactStatuses };
+      
+      // Беремо дані старого статусу
+      const oldStatusData = statusesCopy[oldStatus];
+
+      // Видаляємо старий ключ
+      delete statusesCopy[oldStatus];
+
+      // Додаємо новий ключ з новим кольором
+      statusesCopy[newStatus] = { ...oldStatusData, bg: newBg };
+
+      return {
+        ...state,
+        contactStatuses: statusesCopy,
+
+        contacts: state.contacts.map(contact => 
+          contact.status === oldStatus ? { ...contact, status: newStatus } : contact
+        )
+      };
+
+    // 3. ВИДАЛЕННЯ СТАТУСУ 
+    case DELETE_STATUS:
+      const statusesAfterDelete = { ...state.contactStatuses };
+      delete statusesAfterDelete[action.payload];
+      return {
+        ...state,
+        contactStatuses: statusesAfterDelete,
+      };
+
+    default:
+      return state;
+  }
+};
+
+export default reducer;
