@@ -1,54 +1,84 @@
+import React from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import "./Sidebar.scss"; 
 
-export default function Sidebar(){
-  const contacts = useSelector(state => state.contacts)
-  const statusCounts = {
-    work: 0,
-    family: 0,
-    private: 0,
-    friends: 0,
-    others: 0,
-  }
+const Sidebar = () => {
+  // 1. Дістаємо контакти та статуси з Redux
+  const contacts = useSelector((state) => state.contacts || []);
+  const contactStatuses = useSelector((state) => state.contactStatuses || {});
 
-  contacts.forEach(contact => {
-    statusCounts[contact.status] += 1
-  });
+  // Функція для підрахунку контактів певного статусу
+  const getCount = (statusName) => {
+    // Фільтруємо контакти, у яких статус співпадає з назвою
+    const count = contacts.filter(
+      (contact) => contact.status === statusName
+    ).length;
+    return count;
+  };
 
-  const totalContacts = contacts.length
+  // Отримуємо список назв статусів (ключі об'єкта)
+  const statusList = Object.keys(contactStatuses);
 
-  return(
-    <aside className="container border-end">
-      <div className="row">
-        <div className="col-12">
-          <div className="contacts-labels">
-            <div className="title">
-              All contact<span>{totalContacts}</span>
-            </div>
-            <div className="list">
-              <div className="unit">
-                <div className="lab lab-success">Work</div>
-                <span>{statusCounts.work}</span>
-              </div>
-              <div className="unit">
-                <div className="lab lab-primary">Family</div>
-                <span>{statusCounts.family}</span>
-              </div>
-              <div className="unit">
-                <div className="lab lab-danger">Private</div>
-                <span>{statusCounts.private}</span>
-              </div>
-              <div className="unit">
-                <div className="lab lab-warning">Friends</div>
-                <span>{statusCounts.friends}</span>
-              </div>
-              <div className="unit">
-                <div className="lab lab-warning">Others</div>
-                <span>{statusCounts.others}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+  return (
+    <div className="sidebar bg-white p-3 shadow-sm" style={{ minHeight: "100vh", width: "250px" }}>
+      <h3 className="text-center mb-4">Contacts</h3>
+      
+      <div className="d-grid gap-2 mb-4">
+        <Link to="/new-contact" className="btn btn-primary">
+          + New Contact
+        </Link>
+        <Link to="/contact-statuses" className="btn btn-outline-secondary">
+          ⚙️ Manage Statuses
+        </Link>
       </div>
-    </aside>
-  )
-}
+
+      <h5 className="text-muted">Status Filters</h5>
+      <ul className="list-group list-group-flush">
+        
+        {/* Виводимо "All Contacts" (загальна кількість) */}
+        <li className="list-group-item d-flex justify-content-between align-items-center">
+          <span className="fw-bold">All Contacts</span>
+          <span className="badge bg-secondary rounded-pill">
+            {contacts.length}
+          </span>
+        </li>
+
+        {/* Пробігаємось по всіх статусах з Redux */}
+        {statusList.map((statusName) => {
+          const statusData = contactStatuses[statusName];
+          const count = getCount(statusName);
+
+          return (
+            <li 
+              key={statusName} 
+              className="list-group-item d-flex justify-content-between align-items-center"
+              style={{ cursor: "pointer" }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {/* Кольоровий кружечок */}
+                <span 
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    backgroundColor: statusData.bg,
+                    borderRadius: "50%",
+                    display: "inline-block"
+                  }}
+                ></span>
+                {statusName}
+              </span>
+
+              {/* 🔢 Цифра кількості */}
+              <span className="badge bg-light text-dark rounded-pill border">
+                {count}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
+export default Sidebar;

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { contactValidationSchema } from '../../validation/validation';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from '../../redux/actions';
+import { addContact } from '../../redux/contactSlice';
 
 export default function NewContact(){
   const dispatch = useDispatch()
@@ -58,7 +58,7 @@ export default function NewContact(){
                 </div>
                 <div className='m-4'>
                   <label htmlFor="avatar">Avatar</label>
-                  <Field className='form-control fs-5' type='number' min={0} max={99} name='avatar' id='avatar'/>
+                  <Field className='form-control fs-5' type='text' name='avatar' id='avatar'/>
                   <ErrorMessage name='avatar' component='p' className='text-danger position-absolute'/>
                 </div>
                 <div className='m-4'>

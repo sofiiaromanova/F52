@@ -1,5 +1,10 @@
-import { legacy_createStore as createStore } from "redux";
-import reducer from "./redux/reducers";
+import { configureStore } from "@reduxjs/toolkit";
+import contactReducer from "./redux/contactSlice";
 
-const store = createStore(reducer)
-export default store
+const store = configureStore({
+  reducer: contactReducer, 
+
+  // reducer: { contacts: contactReducer }
+});
+
+export default store;

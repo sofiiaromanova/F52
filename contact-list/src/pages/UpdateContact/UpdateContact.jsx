@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { updateContact } from "../../redux/actions"; 
+import { updateContact } from "../../redux/contactSlice";
 
 import "../NewContact/NewContact.scss"; 
 
@@ -12,23 +12,15 @@ const UpdateContact = () => {
 
   const contacts = useSelector((state) => state.contacts);
   
-  // Ищем контакт по ID
+
+  const contactStatuses = useSelector((state) => state.contactStatuses || {});
+  
   const currentContact = contacts.find((contact) => contact.id == id);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [status, setStatus] = useState("Work");
-
-  // Заполняем форму данными при загрузке
-  useEffect(() => {
-    if (currentContact) {
-      setName(currentContact.firstName + " " + currentContact.lastName);
-      setEmail(currentContact.email);
-      setPhone(currentContact.phone);
-      setStatus(currentContact.status || "others");
-    }
-  }, [currentContact]);
+  const [name, setName] = useState(currentContact ? currentContact.firstName + " " + currentContact.lastName : "");
+  const [email, setEmail] = useState(currentContact ? currentContact.email : "");
+  const [phone, setPhone] = useState(currentContact ? currentContact.phone : "");
+  const [status, setStatus] = useState(currentContact ? currentContact.status : "Work");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -37,17 +29,21 @@ const UpdateContact = () => {
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(" ") || "";
 
-    const updatedData = {
+    const updateData = {
       id: currentContact.id,
       firstName,
       lastName,
       email,
       phone,
-      status,
-      avatar: currentContact.avatar
+      status, 
+      avatar: currentContact.avatar,
+      gender: currentContact.gender 
     };
 
-    dispatch(updateContact(updatedData));
+    dispatch(updateContact({ 
+        id: currentContact.id, 
+        updatedContact: updateData 
+    }));
     navigate("/");
   };
 
@@ -57,9 +53,8 @@ const UpdateContact = () => {
 
   return (
     <div className="shadow bg-white container rounded mt-4 p-4 addPage">
-      <h1 className="text-start">Edit Contact </h1>
+      <h1 className="text-start">Edit Contact</h1>
       <hr />
-      
       <form onSubmit={handleSubmit}>
         <div className="m-4">
           <label className="form-label">Full Name</label>
@@ -71,7 +66,6 @@ const UpdateContact = () => {
             required
           />
         </div>
-
         <div className="m-4">
           <label className="form-label">Email</label>
           <input
@@ -82,7 +76,6 @@ const UpdateContact = () => {
             required
           />
         </div>
-
         <div className="m-4">
           <label className="form-label">Phone</label>
           <input
@@ -94,6 +87,7 @@ const UpdateContact = () => {
           />
         </div>
 
+        {/* 👇 2. ДИНАМІЧНИЙ СПИСОК СТАТУСІВ */}
         <div className="m-4">
           <label className="form-label">Status</label>
           <select 
@@ -101,11 +95,17 @@ const UpdateContact = () => {
             value={status} 
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="Work">Work</option>
-            <option value="Family">Family</option>
-            <option value="Private">Private</option>
-            <option value="Friends">Friends</option>
-            <option value="others">Others</option>
+
+            {Object.keys(contactStatuses).map((statusName) => (
+              <option key={statusName} value={statusName}>
+                {statusName}
+              </option>
+            ))}
+            
+            {/* Якщо раптом статус контакту старий і його вже немає в списку */}
+            {!contactStatuses[status] && (
+               <option value={status}>{status}</option>
+            )}
           </select>
         </div>
 

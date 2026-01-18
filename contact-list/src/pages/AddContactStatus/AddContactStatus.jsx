@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { addStatus } from "../../redux/actions";
+import { addStatus } from "../../redux/contactSlice";
 
 const AddContactStatus = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Стейт для даних форми
+
   const [name, setName] = useState("");
   const [bg, setBg] = useState("#000000");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addStatus(name, bg));
+   dispatch(addStatus({ statusName: name, bg: bg }));
     navigate("/contact-statuses");
   };
 

@@ -1,91 +1,112 @@
-import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { deleteContact } from '../../redux/actions';
-import './ContactItem.scss';
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { deleteContact } from "../../redux/contactSlice";
+import "./ContactItem.scss"; 
 
-export default function ContactItem() {
+const ContactItem = () => {
   const dispatch = useDispatch();
-  
-  const contacts = useSelector((state) => state.contacts);
-  const search = useSelector((state) => state.search) || "";
 
 
-  const statusColors = {
-    work: "#198754",    
-    family: "#dc3545",  
-    private: "#ffc107", 
-    friends: "#0dcaf0", 
-    others: "#6c757d"   
-  };
+  const contacts = useSelector((state) => state.contacts || []);
+  const search = useSelector((state) => state.search || "");
+  const contactStatuses = useSelector((state) => state.contactStatuses || {});
+
 
   const searchContacts = contacts.filter((contact) => {
+    const firstName = contact.firstName || "";
+    const lastName = contact.lastName || "";
 
-    const fullName = (contact.firstName + " " + contact.lastName).toLowerCase();
-    return fullName.includes(search.toLowerCase());
+    const fullName = (firstName + " " + lastName).toLowerCase();
+    
+
+    const searchText = (search || "").toLowerCase();
+    return fullName.includes(searchText);
   });
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this contact?')) {
+
+    if (confirm("Are you sure you want to delete this contact?")) {
       dispatch(deleteContact(id));
     }
   };
 
 
   const getStatusStyle = (statusName) => {
-
-    const key = statusName ? statusName.toLowerCase() : 'others';
-    
-
-    const bgColor = statusColors[key] || statusColors['others'];
-
-
-    const textColor = (key === 'private' || key === 'friends') ? '#000000' : '#ffffff';
-
-    return { backgroundColor: bgColor, color: textColor };
+    if (contactStatuses && contactStatuses[statusName]) {
+      return { 
+        backgroundColor: contactStatuses[statusName].bg, 
+        color: "#ffffff" 
+      };
+    }
+    return { backgroundColor: "#8ba3b8", color: "#ffffff" };
   };
 
   return (
     <div className="contact-grid">
       {searchContacts.map((contact) => {
+        
+
         let imgUrl = contact.avatar;
         
-        if (!imgUrl || imgUrl.length < 5) {
-             imgUrl = "https://i.pravatar.cc/150?u=" + contact.id;
+
+        if (!imgUrl || String(imgUrl).indexOf("http") === -1) {
+            
+
+            let num = parseInt(contact.avatar);
+            if (!num) num = parseInt(contact.id);
+            if (!num) num = 1;
+            num = num % 99;
+
+
+            let gender = "men";
+            if (contact.gender === "women") {
+                gender = "women";
+            }
+
+
+            imgUrl = "https://randomuser.me/api/portraits/" + gender + "/" + num + ".jpg";
         }
+        // ------------------------------------------
 
         return (
           <div key={contact.id} className="contact-card">
-            <img 
-              src={imgUrl} 
-              alt="Avatar" 
-              onError={(e) => { e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png" }} 
+            <img
+              src={imgUrl}
+              alt="Avatar"
+              onError={(e) => {
+                e.target.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+              }}
             />
-            
-            <h3>{contact.firstName} {contact.lastName}</h3>
-            
-            <div className="info-row">
-              <span>📧</span> {contact.email}
-            </div>
-            <div className="info-row">
-              <span>📞</span> {contact.phone}
-            </div>
-            
 
-            <span 
-              className="status-badge" 
+            <h3>
+              {contact.firstName} {contact.lastName}
+            </h3>
+
+            <div className="info-row">
+              <span>📧</span> {contact.email || "No email"}
+            </div>
+            <div className="info-row">
+              <span>📞</span> {contact.phone || "No phone"}
+            </div>
+
+            <span
+              className="status-badge"
               style={getStatusStyle(contact.status)}
             >
-               {contact.status}
+              {contact.status || "Unknown"}
             </span>
 
             <div className="buttons">
-              <Link to={"/update-contact/" + contact.id} className="btn-edit">
-                Edit 
-              </Link>
 
-              <button onClick={() => handleDelete(contact.id)} className="btn-delete">
-                Delete 
+              <Link to={"/update-contact/" + contact.id} className="btn-edit">
+                Edit
+              </Link>
+              <button
+                onClick={() => handleDelete(contact.id)}
+                className="btn-delete"
+              >
+                Delete
               </button>
             </div>
           </div>
@@ -93,4 +114,6 @@ export default function ContactItem() {
       })}
     </div>
   );
-}
+};
+
+export default ContactItem;

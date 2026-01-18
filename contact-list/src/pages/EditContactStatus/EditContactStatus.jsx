@@ -1,51 +1,75 @@
-import {Formik, Form, Field, ErrorMessage} from 'formik'
-import { useNavigate, useParams } from "react-router-dom";
-import { statusesValidationSchema } from '../../validation/validation';
+import React, { useState } from "react"; 
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import { editStatus } from "../../redux/contactSlice";
 
-import { useDispatch, useSelector } from 'react-redux';
-import { editStatus } from '../../redux/actions';
+const EditContactStatus = () => {
+  const { statusName } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-export default function EditContactStatus(){
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const {statusName} = useParams()
-  const status = useSelector(state => state.contactStatuses[statusName])
+  const contactStatuses = useSelector((state) => state.contactStatuses);
+  const currentStatus = contactStatuses[statusName];
 
-  if (!status) {
-    return <div>Status not found</div>
+
+  const [name, setName] = useState(statusName || "");
+  const [bg, setBg] = useState(currentStatus ? currentStatus.bg : "#000000");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(editStatus({ 
+      oldStatus: statusName,
+      newStatus: name,
+      newBg: bg
+    }));
+    navigate("/contact-statuses");
+  };
+
+  if (!currentStatus) {
+    return <h2 className="text-center mt-5">Status not found! 😕</h2>;
   }
 
-  const initialValues = {
-    statusName: statusName,
-    bg: status.bg,
-  }
+  return (
+    <div className="shadow bg-white container rounded mt-4 p-4 addPage">
+      <h1 className="text-center">Edit Contact Status</h1>
+      <hr />
+      <form onSubmit={handleSubmit}>
+        <div className="m-4">
+          <label className="form-label fs-4">Status Name</label>
+          <input
+            type="text"
+            className="form-control fs-5"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+        <div className="m-4">
+          <label className="form-label fs-4 d-block">Color</label>
+           <input
+            type="color"
+            className="form-input m-1 fs-4" 
+            value={bg}
+            onChange={(e) => setBg(e.target.value)}
+            title="Choose your color"
+            style={{ cursor: "pointer" }} 
+          />
+        </div>
+        <div className="d-grid gap-2 m-4">
+          <button type="submit" className="btn btn-primary btn-lg">
+            Save Changes
+          </button>
+          <button 
+            type="button" 
+            className="btn btn-secondary"
+            onClick={() => navigate("/contact-statuses")}
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
 
-  const handleSubmit = (value) =>{
-    dispatch(editStatus(statusName, value.statusName, value.bg))
-    navigate('/contact-statuses')
-  }
-
-  return(
-    <main className="shadow bg-white container rounded mt-4 addPage">
-          <Formik enableReinitialize={true} initialValues={initialValues} validationSchema={statusesValidationSchema} onSubmit={handleSubmit}>
-            {({ isSubmitting }) => (
-              <Form>
-                <h1 className="text-center">Edit contact status</h1>
-                <hr />
-                <div className='m-4'>
-                  <label htmlFor="statusName">Status name</label>
-                  <Field className='form-control fs-5' type='text' name='statusName' id='statusName'/>
-                  <ErrorMessage name='statusName' component='p' className='text-danger position-absolute'/>
-                </div>
-                <div className='m-4'>
-                  <label className='form-input m-1 fs-4'  htmlFor="bg">Color</label>
-                  <Field className='form-input m-1 fs-4' type='color' name='bg' id='bg'/>
-                  <ErrorMessage name='bg' component='p' className='text-danger position-absolute'/>
-                </div>
-                <button type='submit' className='btn btn-primary btn-lg form-control' disabled={isSubmitting}>Save</button>
-              </Form>
-            )}
-          </Formik>
-    </main>
-  )
-}
+export default EditContactStatus;
